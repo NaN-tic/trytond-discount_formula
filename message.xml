@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!-- This file is part of Tryton.  The COPYRIGHT file at the top level of
+this repository contains the full copyright notices and license terms. -->
+<tryton>
+    <data grouped="1">
+        <record model="ir.message" id="msg_invalid_discount_formula">
+            <field name="text">The format for the discount formula provided "%(formula)s" is incorrect. It can only contain numeric values, and the symbols "+" "*" "/" "." </field>
+        </record>
+        <record model="ir.message" id="msg_invalid_amount_discount">
+            <field name="text">The value to be substracted as discount has incorrect format. It must be either a integer or decimal number </field>
+        </record>
+        <record model="ir.message" id="msg_invalid_multiproduct_discount">
+            <field name="text">The amounts for the products in "buy x pay y" discount "%(element)s" are not valid.</field>
+        </record>
+        <record model="ir.message" id="msg_invalid_percent_discount">
+            <field name="text">The percentage provided for discount must be between 0 and 100, it is "%(element)s" instead.</field>
+        </record>
+    </data>
+</tryton>

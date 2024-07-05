@@ -1,0 +1,6 @@
+<data>
+    <xpath expr="//field[@name='base_price']" position="after">
+        <label name="discount_formula"/>
+        <field name="discount_formula"/>
+    </xpath>
+</data>
