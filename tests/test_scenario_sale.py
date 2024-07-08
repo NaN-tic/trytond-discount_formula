@@ -16,7 +16,7 @@ class Test(unittest.TestCase):
         drop_db()
         super().tearDown()
 
-    def test_account_invoice_discount(self):
+    def test(self):
         activate_modules(['sale_discount', 'discount_formula'])
         
         create_company()
