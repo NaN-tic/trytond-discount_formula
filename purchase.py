@@ -14,7 +14,7 @@ class PurchaseLine(DiscountMixin, metaclass=PoolMeta):
         if self.product and self.product.product_suppliers:
             supplier = self.product.product_suppliers[0]
             for price in supplier.prices:
-                if(self.purchase_date >= price.start_date
+                if(self.purchase_date and self.purchase_date >= price.start_date
                     and self.purchase_date <= price.end_date):
                     self.discount_formula = price.discount_formula
                     break
