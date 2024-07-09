@@ -11,10 +11,13 @@ class DiscountMixin(Model):
     discount_formula = fields.Char('Discount Formula')
 
     @fields.depends('base_price', 'discount_formula', 'unit_price',
-        methods=['apply_discount_formula'])
+        'discount_rate', 'discount_amount',
+        methods=['apply_discount_formula', 'on_change_with_discount_rate'])
     def on_change_discount_formula(self):
         if self.discount_formula is not None and self.base_price is not None:
             self.unit_price = self.apply_discount_formula(raise_exception=False)
+            self.discount_rate = self.on_change_with_discount_rate()
+            self.discount_amount = self.on_change_with_discount_amount()
     
     @fields.depends('base_price', 'discount_formula', 'unit_price',
         methods=['apply_discount_formula'])
@@ -40,20 +43,42 @@ class DiscountMixin(Model):
             if unit_price != self.unit_price:
                 self.discount_formula = None
 
+    @fields.depends('base_price', 'discount_formula', 'unit_price',
+        methods=['apply_discount_formula'])
+    def on_change_discount_rate(self):
+        super().on_change_discount_rate()
+        if self.discount_formula and self.base_price:
+            unit_price = self.apply_discount_formula(raise_exception=False)
+            if unit_price != self.unit_price:
+                self.discount_formula = None
+
+    @fields.depends('base_price', 'discount_formula', 'unit_price',
+        methods=['apply_discount_formula'])
+    def on_change_discount_amount(self):
+        super().on_change_discount_amount()
+        if self.discount_formula and self.base_price:
+            unit_price = self.apply_discount_formula(raise_exception=False)
+            if unit_price != self.unit_price:
+                self.discount_formula = None
+
     def apply_discount_formula(self, raise_exception=True):
         discount_price = self.base_price
         formula = self.discount_formula
         m = re.compile(r'[0-9+*./]*$')
         if not m.match(formula):
-            raise UserError(gettext(
-                'discount_formula.msg_invalid_discount_formula',
-                formula=formula))
+            if raise_exception:
+                raise UserError(gettext(
+                    'discount_formula.msg_invalid_discount_formula',
+                    formula=formula))
+            else:
+                return None
 
         elements = formula.split('+')
         for element in elements:
-            if '/' in element: #Case absolut value discount
+            if element.count('/') == 1: #Case absolut value discount
                 value = element.split('/')[0]
-                if value and value.replace('.','',1).isdigit():
+                if (value and value.replace('.','',1).isdigit()
+                    and element.split('/')[1] == ''):
                     discount_price = discount_price - Decimal(value)
                 elif raise_exception:
                     raise UserError(gettext(
@@ -62,7 +87,7 @@ class DiscountMixin(Model):
                 else:
                     return None
 
-            elif '*' in element: #Case buy x pay y discount
+            elif element.count('*') == 1: #Case buy x pay y discount
                 value1, value2 = element.split('*')
                 if(value1 and value2 
                     and value1.isdigit() and value2.isdigit()
