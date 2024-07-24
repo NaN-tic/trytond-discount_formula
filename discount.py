@@ -64,7 +64,7 @@ class DiscountMixin(Model):
     def apply_discount_formula(self, raise_exception=True):
         discount_price = self.base_price
         formula = self.discount_formula
-        m = re.compile(r'[0-9+*./]*$')
+        m = re.compile(r'[0-9+\-*./]*$')
         if not m.match(formula):
             if raise_exception:
                 raise UserError(gettext(
@@ -76,10 +76,17 @@ class DiscountMixin(Model):
         elements = formula.split('+')
         for element in elements:
             if element.count('/') == 1: #Case absolut value discount
+                negative = False
                 value = element.split('/')[0]
+                if '-' in value:
+                    negative = True
+                    value = value.replace('-', '',1)
                 if (value and value.replace('.','',1).isdigit()
                     and element.split('/')[1] == ''):
-                    discount_price = discount_price - Decimal(value)
+                    value = Decimal(value)
+                    if negative:
+                        value *= -1
+                    discount_price = discount_price - value
                 elif raise_exception:
                     raise UserError(gettext(
                         'discount_formula.msg_invalid_amount_discount',
@@ -103,9 +110,16 @@ class DiscountMixin(Model):
                     return None
 
             else: #Case percent discount
+                negative = False
+                if '-' in element:
+                    negative = True
+                    element = element.replace('-', '',1)
                 if element and element.isdigit() and float(element) <= 100:
+                    element = float(element)
+                    if negative:
+                        element *= -1
                     discount_price = discount_price * (1 - 
-                        Decimal(float(element) * 0.01))
+                        Decimal(element * 0.01))
                 elif raise_exception:
                     raise UserError(gettext(
                         'discount_formula.msg_invalid_percent_discount',
