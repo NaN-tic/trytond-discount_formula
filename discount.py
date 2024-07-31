@@ -1,9 +1,8 @@
 from trytond.model import fields, Model
-from trytond.pool import Pool, PoolMeta
 from decimal import Decimal
 from trytond.i18n import gettext
 from trytond.exceptions import UserError
-from trytond.modules.product import price_digits, round_price
+from trytond.modules.product import round_price
 import re
 
 
