@@ -19,6 +19,8 @@ class PurchaseLine(DiscountMixin, metaclass=PoolMeta):
                              or self.purchase_date >= price.start_date)
                         and (not price.end_date
                              or self.purchase_date <= price.end_date)):
+                    self.discount_formula = price.discount_formula
+                    break
             if self.discount_formula and self.base_price:
                 self.unit_price = self.apply_discount_formula(
                     raise_exception=False)
