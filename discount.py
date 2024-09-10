@@ -11,7 +11,8 @@ class DiscountMixin(Model):
 
     @fields.depends('base_price', 'discount_formula', 'unit_price',
         'discount_rate', 'discount_amount',
-        methods=['apply_discount_formula', 'on_change_with_discount_rate'])
+        methods=['apply_discount_formula', 'on_change_with_discount_rate',
+                 'on_change_with_discount_amount' ])
     def on_change_discount_formula(self):
         if self.discount_formula is not None and self.base_price is not None:
             self.unit_price = self.apply_discount_formula(raise_exception=False)
