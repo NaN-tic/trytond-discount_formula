@@ -2,6 +2,7 @@ from trytond.pool import PoolMeta
 from trytond.model import fields
 from .discount import DiscountMixin
 
+
 class PurchaseLine(DiscountMixin, metaclass=PoolMeta):
     __name__ = 'purchase.line'
 
@@ -19,6 +20,16 @@ class PurchaseLine(DiscountMixin, metaclass=PoolMeta):
         if self.product_supplier and self.product_supplier.prices:
             self.discount_formula = self.product_supplier.prices[0].discount_formula
             self.on_change_discount_formula()
+
+
+class PurchaseDiscountLine(metaclass=PoolMeta):
+    __name__ = 'purchase.line'
+
+    def get_invoice_line(self):
+        lines = super().get_invoice_line()
+        for line in lines:
+            line.discount_formula = self.discount_formula
+        return lines
 
 
 class PurchaseLineSupplierDepends(DiscountMixin, metaclass=PoolMeta):
