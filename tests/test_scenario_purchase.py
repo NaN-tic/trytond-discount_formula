@@ -72,6 +72,7 @@ class Test(unittest.TestCase):
         self.assertEqual(line.discount_formula, None)
         line.discount_formula = '10*9+10'
         self.assertEqual(line.unit_price, Decimal('8.1000'))
+        self.assertEqual(line.discount_rate, Decimal('0.1900'))
 
         purchase.click('quote')
         purchase.click('confirm')
