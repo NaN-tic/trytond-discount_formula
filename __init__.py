@@ -10,16 +10,29 @@ from . import sale
 def register():
     Pool.register(
         invoice.InvoiceLine,
-        module='discount_formula', type_='model', depends=['account_invoice_discount'])
+        module='discount_formula', type_='model',
+        depends=['account_invoice_discount'])
     Pool.register(
         purchase.PurchaseLine,
-        module='discount_formula', type_='model', depends=['purchase_discount'])
+        module='discount_formula', type_='model',
+        depends=['purchase_discount'])
+    Pool.register(
+        purchase.PurchaseDiscountLine,
+        module='discount_formula', type_='model',
+        depends=['purchase_discount', 'account_invoice_discount'])
     Pool.register(
         product_supplier.ProductSupplierPrice,
-        module='discount_formula', type_='model', depends=['purchase_supplier_discount'])
+        module='discount_formula', type_='model',
+        depends=['purchase_supplier_discount'])
     Pool.register(
         purchase.PurchaseLineSupplierDepends,
-        module='discount_formula', type_='model', depends=['purchase_discount', 'purchase_supplier_discount'])
+        module='discount_formula', type_='model',
+        depends=['purchase_discount', 'purchase_supplier_discount'])
     Pool.register(
         sale.SaleLine,
-        module='discount_formula', type_='model', depends=['sale_discount'])
+        module='discount_formula', type_='model',
+        depends=['sale_discount'])
+    Pool.register(
+        sale.SaleDiscountLine,
+        module='discount_formula', type_='model',
+        depends=['sale_discount', 'account_invoice_discount'])

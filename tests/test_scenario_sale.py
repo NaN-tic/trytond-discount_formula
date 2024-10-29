@@ -11,14 +11,15 @@ class Test(unittest.TestCase):
     def setUp(self):
         drop_db()
         super().setUp()
-    
+
     def tearDown(self):
         drop_db()
         super().tearDown()
 
     def test(self):
-        activate_modules(['sale_discount', 'discount_formula'])
-        
+        activate_modules(['sale_discount', 'discount_formula',
+            'account_invoice_discount'])
+
         create_company()
         company = get_company()
 
@@ -26,12 +27,12 @@ class Test(unittest.TestCase):
         accounts = get_accounts(company)
         revenue = accounts['revenue']
         expense = accounts['expense']
-        
+
         # Create parties
         Party = Model.get('party.party')
         party = Party(name="Party")
         party.save()
-        
+
         # Create product
         ProductCategory = Model.get('product.category')
         account_category = ProductCategory(name="Account Category")
@@ -44,7 +45,7 @@ class Test(unittest.TestCase):
         unit, = ProductUom.find([('name', '=', 'Unit')])
 
         ProductTemplate = Model.get('product.template')
-        
+
         template = ProductTemplate()
         template.name = 'product'
         template.default_uom = unit
@@ -71,10 +72,16 @@ class Test(unittest.TestCase):
         self.assertEqual(line.discount_formula, None)
         line.discount_formula = '10*9+10'
         self.assertEqual(line.unit_price, Decimal('8.1000'))
-
+        self.assertEqual(line.discount_rate, Decimal('0.1900'))
 
         sale.click('quote')
         sale.click('confirm')
 
         self.assertEqual(sale.state, 'processing')
 
+        self.assertEqual(len(sale.invoices), 1)
+        invoice, = sale.invoices
+        invoice_line, = invoice.lines
+        self.assertEqual(invoice_line.discount_formula, line.discount_formula)
+        self.assertEqual(invoice_line.base_price, line.base_price)
+        self.assertEqual(invoice_line.discount_rate, line.discount_rate)

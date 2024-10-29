@@ -1,5 +1,5 @@
 <data>
     <xpath expr="/tree/field[@name='base_price']" position="after">
-        <field name="discount_formula"/>
+        <field name="discount_formula" optional="1"/>
     </xpath>
 </data>
