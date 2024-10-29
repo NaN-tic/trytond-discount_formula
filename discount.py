@@ -18,7 +18,7 @@ class DiscountMixin(Model):
             self.unit_price = self.apply_discount_formula(raise_exception=False)
             self.discount_rate = self.on_change_with_discount_rate()
             self.discount_amount = self.on_change_with_discount_amount()
-    
+
     @fields.depends('base_price', 'discount_formula', 'unit_price',
         methods=['apply_discount_formula'])
     def on_change_base_price(self):
@@ -62,6 +62,14 @@ class DiscountMixin(Model):
                 self.discount_formula = None
 
     def apply_discount_formula(self, raise_exception=True):
+
+        def is_number(value):
+            try:
+                float(value)
+                return True
+            except ValueError:
+                return False
+
         discount_price = self.base_price
         formula = self.discount_formula
         m = re.compile(r'[0-9+\-*./]*$')
@@ -71,7 +79,7 @@ class DiscountMixin(Model):
                     'discount_formula.msg_invalid_discount_formula',
                     formula=formula))
             else:
-                return None
+                return
 
         elements = formula.split('+')
         for element in elements:
@@ -81,8 +89,7 @@ class DiscountMixin(Model):
                 if '-' in value:
                     negative = True
                     value = value.replace('-', '',1)
-                if (value and value.replace('.','',1).isdigit()
-                    and element.split('/')[1] == ''):
+                if (value and is_number(value) and element.split('/')[1] == ''):
                     value = Decimal(value)
                     if negative:
                         value *= -1
@@ -92,13 +99,13 @@ class DiscountMixin(Model):
                         'discount_formula.msg_invalid_amount_discount',
                         element=element))
                 else:
-                    return None
+                    return
 
             elif element.count('*') == 1: #Case buy x pay y discount
                 value1, value2 = element.split('*')
-                if(value1 and value2 
-                    and value1.isdigit() and value2.isdigit()
-                    and Decimal(value2) < Decimal(value1)):
+                if (value1 and value2
+                        and value1.isdigit() and value2.isdigit()
+                        and Decimal(value2) < Decimal(value1)):
 
                     value1, value2 = Decimal(value1), Decimal(value2)
                     discount_price = (value2 / value1 * discount_price)
@@ -107,24 +114,25 @@ class DiscountMixin(Model):
                         'discount_formula.msg_invalid_multiproduct_discount',
                         element=element))
                 else:
-                    return None
+                    return
 
             else: #Case percent discount
                 negative = False
                 if '-' in element:
                     negative = True
-                    element = element.replace('-', '',1)
-                if element and element.isdigit() and float(element) <= 100:
+                    element = element.replace('-', '', 1)
+                if (element and is_number(element) and float(element) <= 100):
                     element = float(element)
                     if negative:
                         element *= -1
-                    discount_price = discount_price * (1 - 
+                    discount_price = discount_price * (1 -
                         Decimal(element * 0.01))
                 elif raise_exception:
                     raise UserError(gettext(
                         'discount_formula.msg_invalid_percent_discount',
                         element=element))
                 else:
-                    return None
-        discount_price = round_price(discount_price) 
+                    return
+
+        discount_price = round_price(discount_price)
         return discount_price if discount_price >= 0 else 0
