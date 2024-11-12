@@ -2,6 +2,22 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
+msgctxt "field:account.invoice.line,discount_formula:"
+msgid "Discount Formula"
+msgstr "Fórmula descuento"
+
+msgctxt "field:purchase.line,discount_formula:"
+msgid "Discount Formula"
+msgstr "Fórmula descuento"
+
+msgctxt "field:purchase.product_supplier.price,discount_formula:"
+msgid "Discount Formula"
+msgstr "Fórmula descuento"
+
+msgctxt "field:sale.line,discount_formula:"
+msgid "Discount Formula"
+msgstr "Fórmula descuento"
+
 msgctxt "model:ir.message,text:msg_invalid_amount_discount"
 msgid ""
 "The value to be substracted as discount has incorrect format. It must be "

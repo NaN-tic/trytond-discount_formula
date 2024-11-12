@@ -2,13 +2,29 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
+msgctxt "field:account.invoice.line,discount_formula:"
+msgid "Discount Formula"
+msgstr "Fórmula descompte"
+
+msgctxt "field:purchase.line,discount_formula:"
+msgid "Discount Formula"
+msgstr "Fórmula descompte"
+
+msgctxt "field:purchase.product_supplier.price,discount_formula:"
+msgid "Discount Formula"
+msgstr "Fórmula descompte"
+
+msgctxt "field:sale.line,discount_formula:"
+msgid "Discount Formula"
+msgstr "Fórmula descompte"
+
 msgctxt "model:ir.message,text:msg_invalid_amount_discount"
 msgid ""
 "The value to be substracted as discount has incorrect format. It must be "
 "either a integer or decimal number "
 msgstr ""
-"El valor que s'ha de sostraure com a descompte té un format incorrecte. Ha de "
-"ser un nombre enter o decimal "
+"El valor que s'ha de sostraure com a descompte té un format incorrecte. Ha "
+"de ser un nombre enter o decimal "
 
 msgctxt "model:ir.message,text:msg_invalid_discount_formula"
 msgid ""
