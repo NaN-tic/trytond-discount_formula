@@ -39,6 +39,6 @@ class SaleDiscountPriceListLine(metaclass=PoolMeta):
         if price_list and self.unit:
             discount_formula = price_list.compute_discount_formula(self.product,
                 self.quantity, self.unit)
-            if not (discount_formula is None or discount_formula == ''):
+            if discount_formula:
                 self.discount_formula = discount_formula
                 self.on_change_discount_formula()
