@@ -10,6 +10,7 @@ from trytond.pool import Pool
 class DiscountFormulaTestCase(ModuleTestCase):
     'Test Discount Formula module'
     module = 'discount_formula'
+    extras = ['sale_discount_price_list']
 
     @classmethod
     def setUpClass(cls):
