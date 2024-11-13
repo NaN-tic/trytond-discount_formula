@@ -6,6 +6,7 @@ from . import invoice
 from . import purchase
 from . import product_supplier
 from . import sale
+from . import price_list
 
 def register():
     Pool.register(
@@ -36,3 +37,9 @@ def register():
         sale.SaleDiscountLine,
         module='discount_formula', type_='model',
         depends=['sale_discount', 'account_invoice_discount'])
+    Pool.register(
+        price_list.PriceList,
+        price_list.PriceListLine,
+        sale.SaleDiscountPriceListLine,
+        module='discount_formula', type_='model',
+        depends=['sale_discount_price_list'])
