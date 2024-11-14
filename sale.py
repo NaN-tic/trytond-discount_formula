@@ -9,25 +9,6 @@ from trytond.transaction import Transaction
 class SaleLine(DiscountMixin, metaclass=PoolMeta):
     __name__ = 'sale.line'
 
-    html_discount_formula = fields.Function(
-        fields.Char('HTML Discount Formula'), 'get_html_discount_formula')
-
-    def get_html_discount_formula(self, name):
-        if self.discount_formula:
-            formula = re.sub(r'([+/])', r' \1', self.discount_formula)
-            discounts = formula.split() if formula else None
-
-            if discounts:
-                result = [
-                    f"{discount.replace('+', '')}%" if '*' not in discount
-                    and '/' not in discount else
-                    f"-{discount.replace('+', '').replace('/', '')}"
-                    if '/' in discount else discount.replace('+', '')
-                    for discount in discounts
-                    ]
-                return ', '.join(result)
-        return ''
-
     @fields.depends('discount_formula', 'discount_rate',
         methods=['on_change_discount_rate'])
     def on_change_discount_formula(self):
