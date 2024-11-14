@@ -1,5 +1,3 @@
-import re
-
 from trytond.pool import PoolMeta
 from trytond.model import fields
 from trytond.pyson import Bool, Eval
@@ -20,8 +18,6 @@ class PriceListLine(metaclass=PoolMeta):
         states={
             'invisible': Bool(Eval('discount_rate', False)),
         })
-    html_discount_formula = fields.Function(
-        fields.Char('HTML Discount Formula'), 'get_html_discount_formula')
 
     @classmethod
     def __setup__(cls):
@@ -51,10 +47,14 @@ class PriceListLine(metaclass=PoolMeta):
 
     def update_formula(self):
         super().update_formula()
-        if self.base_price_formula and self.discount_formula:
+        if (self.base_price_formula and not self.discount_formula
+                and not self.discount_rate
+                and not self.formula):
+            self.formula = self.base_price_formula
+        elif self.base_price_formula and self.discount_formula:
             self.formula = '0'
 
-    @fields.depends('discount_formula', 'discount_rate')
+    @fields.depends('discount_formula', 'discount_rate', 'formula')
     def on_change_discount_formula(self):
         self.discount_rate = None
         self.update_formula()
@@ -63,17 +63,3 @@ class PriceListLine(metaclass=PoolMeta):
     def on_change_discount_rate(self):
         super().on_change_discount_rate()
         self.discount_formula = None
-
-    def get_html_discount_formula(self, name):
-        formula = re.sub(r'([+/])', r' \1', self.discount_formula)
-        discounts = formula.split()
-
-        result = [
-            f"{discount.replace('+', '')}%" if '*' not in discount
-            and '/' not in discount else
-            f"-{discount.replace('+', '').replace('/', '')}"
-            if '/' in discount else discount.replace('+', '')
-            for discount in discounts
-            ]
-
-        return ', '.join(result)
