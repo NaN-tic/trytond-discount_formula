@@ -1,3 +1,5 @@
+import re
+
 from trytond.pool import PoolMeta
 from trytond.model import fields
 from trytond.pyson import Bool, Eval
@@ -18,6 +20,8 @@ class PriceListLine(metaclass=PoolMeta):
         states={
             'invisible': Bool(Eval('discount_rate', False)),
         })
+    html_discount_formula = fields.Function(
+        fields.Char('HTML Discount Formula'), 'get_html_discount_formula')
 
     @classmethod
     def __setup__(cls):
@@ -27,6 +31,13 @@ class PriceListLine(metaclass=PoolMeta):
             cls.discount_rate.states['invisible'] |= invisible
         else:
             cls.discount_rate.states['invisible'] = invisible
+
+        readonly = ((Bool(Eval('base_price_formula', False)))
+            & (Bool(Eval('dicsount_formula', False))))
+        if cls.formula.states.get('readonly'):
+            cls.formula.states['readonly'] |= readonly
+        else:
+            cls.formula.states['readonly'] = readonly
 
     @classmethod
     def view_attributes(cls):
@@ -38,10 +49,31 @@ class PriceListLine(metaclass=PoolMeta):
             ]
         return attributes
 
-    @fields.depends('discount_rate')
+    def update_formula(self):
+        super().update_formula()
+        if self.base_price_formula and self.discount_formula:
+            self.formula = '0'
+
+    @fields.depends('discount_formula', 'discount_rate')
     def on_change_discount_formula(self):
         self.discount_rate = None
+        self.update_formula()
 
     @fields.depends('discount_formula')
     def on_change_discount_rate(self):
+        super().on_change_discount_rate()
         self.discount_formula = None
+
+    def get_html_discount_formula(self, name):
+        formula = re.sub(r'([+/])', r' \1', self.discount_formula)
+        discounts = formula.split()
+
+        result = [
+            f"{discount.replace('+', '')}%" if '*' not in discount
+            and '/' not in discount else
+            f"-{discount.replace('+', '').replace('/', '')}"
+            if '/' in discount else discount.replace('+', '')
+            for discount in discounts
+            ]
+
+        return ', '.join(result)
