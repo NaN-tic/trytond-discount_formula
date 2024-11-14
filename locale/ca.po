@@ -6,6 +6,10 @@ msgctxt "field:account.invoice.line,discount_formula:"
 msgid "Discount Formula"
 msgstr "Fórmula descompte"
 
+msgctxt "field:product.price_list.line,discount_formula:"
+msgid "Discount Formula"
+msgstr "Fórmula descompte"
+
 msgctxt "field:purchase.line,discount_formula:"
 msgid "Discount Formula"
 msgstr "Fórmula descompte"
