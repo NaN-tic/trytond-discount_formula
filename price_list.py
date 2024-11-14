@@ -29,7 +29,7 @@ class PriceListLine(metaclass=PoolMeta):
             cls.discount_rate.states['invisible'] = invisible
 
         readonly = ((Bool(Eval('base_price_formula', False)))
-            & (Bool(Eval('dicsount_formula', False))))
+            & (Bool(Eval('discount_formula', False))))
         if cls.formula.states.get('readonly'):
             cls.formula.states['readonly'] |= readonly
         else:
