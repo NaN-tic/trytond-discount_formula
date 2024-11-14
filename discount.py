@@ -8,6 +8,8 @@ import re
 
 class DiscountMixin(Model):
     discount_formula = fields.Char('Discount Formula')
+    html_discount_formula = fields.Function(
+        fields.Char('HTML Discount Formula'), 'get_html_discount_formula')
 
     @fields.depends('base_price', 'discount_formula', 'unit_price',
         'discount_rate', 'discount_amount',
@@ -136,3 +138,18 @@ class DiscountMixin(Model):
 
         discount_price = round_price(discount_price)
         return discount_price if discount_price >= 0 else 0
+
+    def get_html_discount_formula(self, name):
+        if self.discount_formula:
+            formula = re.sub(r'([+/])', r' \1', self.discount_formula)
+            discounts = formula.split() if formula else None
+
+            if discounts:
+                result = [
+                    f"{discount.replace('+', '')}%" if '*' not in discount
+                    and '/' not in discount else
+                    f"-{discount.replace('+', '').replace('/', '')}"
+                    if '/' in discount else discount.replace('+', '')
+                    for discount in discounts
+                    ]
+                return ', '.join(result)
