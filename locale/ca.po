@@ -22,6 +22,10 @@ msgctxt "field:sale.line,discount_formula:"
 msgid "Discount Formula"
 msgstr "Fórmula descompte"
 
+msgctxt "field:sale.sale,sale_discount_formula:"
+msgid "Sale Discount Formula"
+msgstr "Fórmula descompte venda"
+
 msgctxt "model:ir.message,text:msg_invalid_amount_discount"
 msgid ""
 "The value to be substracted as discount has incorrect format. It must be "

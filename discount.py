@@ -1,15 +1,16 @@
-from trytond.model import fields, Model
+import re
 from decimal import Decimal
+
+from trytond.pool import Pool
+from trytond.model import fields, Model
 from trytond.i18n import gettext
 from trytond.exceptions import UserError
-from trytond.modules.product import round_price
-import re
+from trytond.transaction import Transaction
+from trytond.modules.product import price_digits, round_price
 
 
 class DiscountMixin(Model):
     discount_formula = fields.Char('Discount Formula')
-    html_discount_formula = fields.Function(
-        fields.Char('HTML Discount Formula'), 'get_html_discount_formula')
 
     @fields.depends('base_price', 'discount_formula', 'unit_price',
         'discount_rate', 'discount_amount',
@@ -63,8 +64,30 @@ class DiscountMixin(Model):
             if unit_price != self.unit_price:
                 self.discount_formula = None
 
-    def apply_discount_formula(self, raise_exception=True):
+    @fields.depends('discount_formula')
+    def on_change_with_discount(self, name=None):
+        pool = Pool()
+        Lang = pool.get('ir.lang')
+        lang = Lang.get()
 
+        if self.discount_formula:
+            formula = re.sub(r'([+/])', r' \1', self.discount_formula)
+            discounts = formula.split() if formula else None
+
+            if discounts:
+                result = [
+                    lang.format("%i", Decimal(discount.replace('+', ''))) + '%'
+                    if '*' not in discount and '/' not in discount else
+                    "-" + lang.currency(Decimal(discount.replace(
+                                '+', '').replace('/', '')),
+                        digits=price_digits[1], monetary=True)
+                    if '/' in discount else discount.replace('+', '')
+                    for discount in discounts
+                    ]
+                return ', '.join(result)
+        return super().on_change_with_discount(name)
+
+    def apply_discount_formula(self, raise_exception=True):
         def is_number(value):
             try:
                 float(value)
@@ -138,18 +161,3 @@ class DiscountMixin(Model):
 
         discount_price = round_price(discount_price)
         return discount_price if discount_price >= 0 else 0
-
-    def get_html_discount_formula(self, name):
-        if self.discount_formula:
-            formula = re.sub(r'([+/])', r' \1', self.discount_formula)
-            discounts = formula.split() if formula else None
-
-            if discounts:
-                result = [
-                    f"{discount.replace('+', '')}%" if '*' not in discount
-                    and '/' not in discount else
-                    f"-{discount.replace('+', '').replace('/', '')}"
-                    if '/' in discount else discount.replace('+', '')
-                    for discount in discounts
-                    ]
-                return ', '.join(result)
