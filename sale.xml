@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tryton>
     <data depends="sale_discount">
+        <!-- sale.line -->
         <record model="ir.ui.view" id="sale_line_view_tree">
             <field name="model">sale.line</field>
             <field name="inherit" ref="sale.sale_line_view_tree"/>
@@ -15,6 +16,13 @@
             <field name="model">sale.line</field>
             <field name="inherit" ref="sale.sale_line_view_tree_sequence"/>
             <field name="name">sale_line_tree_sequence</field>
+        </record>
+
+        <!-- sale.sale -->
+        <record model="ir.ui.view" id="sale_view_form">
+            <field name="model">sale.sale</field>
+            <field name="inherit" ref="sale.sale_view_form"/>
+            <field name="name">sale_form</field>
         </record>
     </data>
 </tryton>

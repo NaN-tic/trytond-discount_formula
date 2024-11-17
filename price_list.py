@@ -49,7 +49,7 @@ class PriceListLine(metaclass=PoolMeta):
         super().update_formula()
         if (self.base_price_formula and not self.discount_formula
                 and not self.discount_rate
-                and not self.formula):
+                and self.formula == '0'):
             self.formula = self.base_price_formula
         elif self.base_price_formula and self.discount_formula:
             self.formula = '0'
