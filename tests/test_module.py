@@ -85,9 +85,9 @@ class DiscountFormulaTestCase(ModuleTestCase):
             self.assertEqual(line.discount_amount, Decimal('-0.3500'))
             self.assertEqual(line.discount_rate, Decimal('-0.0538'))
             if hasattr(line, 'currency') and line.currency:
-                self.assertEqual(line.on_change_with_discount(), '+USD0.3500')
+                self.assertEqual(line.on_change_with_discount(), 'USD0.3500')
             else:
-                self.assertEqual(line.on_change_with_discount(), '+0.35')
+                self.assertEqual(line.on_change_with_discount(), '0.35')
 
             #Case buy x pay y discount
             line.discount_formula = '3*2'
@@ -132,7 +132,7 @@ class DiscountFormulaTestCase(ModuleTestCase):
             self.assertEqual(line.unit_price, Decimal('7.9625'))
             self.assertEqual(line.discount_amount, Decimal('-1.4625'))
             self.assertEqual(line.discount_rate, Decimal('-0.2250'))
-            self.assertEqual(line.on_change_with_discount(), '+22.5%')
+            self.assertEqual(line.on_change_with_discount(), '22.5%')
 
             #Check complex formulas
             line.discount_formula = '30+-4/'
@@ -141,9 +141,9 @@ class DiscountFormulaTestCase(ModuleTestCase):
             self.assertEqual(line.discount_amount, Decimal('-2.0500'))
             self.assertEqual(line.discount_rate, Decimal('-0.3154'))
             if hasattr(line, 'currency') and line.currency:
-                self.assertEqual(line.on_change_with_discount(), '-30%, +USD4.0000')
+                self.assertEqual(line.on_change_with_discount(), '-30%, USD4.0000')
             else:
-                self.assertEqual(line.on_change_with_discount(), '-30%, +4')
+                self.assertEqual(line.on_change_with_discount(), '-30%, 4')
 
             line.discount_formula = '30+3*2+-4/'
             line.on_change_discount_formula()
@@ -151,9 +151,9 @@ class DiscountFormulaTestCase(ModuleTestCase):
             self.assertEqual(line.discount_amount, Decimal('-0.5333'))
             self.assertEqual(line.discount_rate, Decimal('-0.0820'))
             if hasattr(line, 'currency') and line.currency:
-                self.assertEqual(line.on_change_with_discount(), '-30%, 3*2, +USD4.0000')
+                self.assertEqual(line.on_change_with_discount(), '-30%, 3*2, USD4.0000')
             else:
-                self.assertEqual(line.on_change_with_discount(), '-30%, 3*2, +4')
+                self.assertEqual(line.on_change_with_discount(), '-30%, 3*2, 4')
 
             line.discount_formula = '30+3*2+1/'
             line.on_change_discount_formula()
