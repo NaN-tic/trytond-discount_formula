@@ -64,25 +64,39 @@ class DiscountMixin(Model):
             if unit_price != self.unit_price:
                 self.discount_formula = None
 
-    @fields.depends('discount_formula')
+    @property
+    def discount_currency(self):
+        if hasattr(self, 'currency'):
+            return self.currency
+
+    @fields.depends('discount_formula', methods=['discount_currency'])
     def on_change_with_discount(self, name=None):
         pool = Pool()
         Lang = pool.get('ir.lang')
         lang = Lang.get()
 
+        currency = self.discount_currency
+
+        def _discount_format(discount):
+            value = discount.replace('+', '').replace('/', '')
+            try:
+                value = float(value)
+            except ValueError:
+                return value
+
+            if '*' not in discount and '/' not in discount:
+                return lang.format("%i", value) + '%'
+            elif currency is not None:
+                return "-" + lang.currency(value, currency, symbol=True,
+                    digits=price_digits[1])
+            return lang.format_number(value, digits=price_digits[1], monetary=True)
+
         if self.discount_formula:
             formula = re.sub(r'([+/])', r' \1', self.discount_formula)
             discounts = formula.split() if formula else None
-
             if discounts:
                 result = [
-                    lang.format("%i", Decimal(discount.replace('+', ''))) + '%'
-                    if '*' not in discount and '/' not in discount else
-                    "-" + lang.currency(Decimal(discount.replace(
-                                '+', '').replace('/', '')),
-                        digits=price_digits[1], monetary=True)
-                    if '/' in discount else discount.replace('+', '')
-                    for discount in discounts
+                    _discount_format(discount) for discount in discounts if discount
                     ]
                 return ', '.join(result)
         return super().on_change_with_discount(name)
