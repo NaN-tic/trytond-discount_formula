@@ -88,3 +88,25 @@ class Test(unittest.TestCase):
         self.assertEqual(invoice_line.base_price, line.base_price)
         self.assertEqual(invoice_line.discount_rate, line.discount_rate)
         self.assertEqual(invoice_line.discount, '10*9, -10%')
+
+        sale = Sale()
+        sale.party = party
+        sale.invoice_method = 'order'
+        sale.sale_discount_formula = '10'
+        line = sale.lines.new()
+        line.product = product
+        line.quantity = 1
+        line.base_price = Decimal('10.0000')
+        self.assertEqual(line.discount_formula, None)
+        line.unit_price = Decimal('10.0000')
+        sale.save()
+
+        line, = sale.lines
+        self.assertEqual(line.discount_formula, None)
+
+        sale.click('quote')
+        self.assertEqual(sale.sale_discount_formula, '10')
+
+        sale.reload()
+        line, = sale.lines
+        self.assertEqual(line.discount_formula, '10')

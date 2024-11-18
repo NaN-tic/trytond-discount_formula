@@ -59,8 +59,8 @@ class Sale(metaclass=PoolMeta):
                 formula += (discount + ("+" if discount
                         or line.discount_formula else "")
                     + sale.sale_discount_formula)
-                if formula:
-                    line.discount_formula += formula
+                if formula and not line.discount_formula:
+                    line.discount_formula = formula
                     line.on_change_discount_formula()
                     line.save()
         super().quote(sales)
