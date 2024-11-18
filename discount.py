@@ -77,28 +77,50 @@ class DiscountMixin(Model):
 
         currency = self.discount_currency
 
-        def _discount_format(discount):
-            value = discount.replace('+', '').replace('/', '')
+        def is_number(value):
             try:
-                value = float(value)
+                float(value)
+                return True
             except ValueError:
-                return value
-
-            if '*' not in discount and '/' not in discount:
-                return lang.format("%i", value) + '%'
-            elif currency is not None:
-                return "-" + lang.currency(value, currency, symbol=True,
-                    digits=price_digits[1])
-            return lang.format_number(value, digits=price_digits[1], monetary=True)
+                return False
 
         if self.discount_formula:
-            formula = re.sub(r'([+/])', r' \1', self.discount_formula)
-            discounts = formula.split() if formula else None
-            if discounts:
-                result = [
-                    _discount_format(discount) for discount in discounts if discount
-                    ]
-                return ', '.join(result)
+            formula = self.discount_formula
+            elements = formula.split('+')
+
+            result = []
+            for element in elements:
+                if element.count('/') == 1: #Case absolut value discount
+                    negative = False
+                    value = element.split('/')[0]
+                    if '-' in value:
+                        negative = True
+                        value = value.replace('-', '', 1)
+                    if (value and is_number(value) and element.split('/')[1] == ''):
+                        if currency:
+                            value = lang.currency(Decimal(value), currency,
+                                    symbol=True, digits=price_digits[1])
+                        result.append('+'+value if negative else '-'+value)
+
+                elif element.count('*') == 1: #Case buy x pay y discount
+                    value1, value2 = element.split('*')
+                    if (value1 and value2
+                            and value1.isdigit() and value2.isdigit()
+                            and Decimal(value2) < Decimal(value1)):
+                        result.append(element)
+
+                else: #Case percent discount
+                    negative = False
+                    if '-' in element:
+                        negative = True
+                        element = element.replace('-', '', 1)
+                    if (element and is_number(element) and float(element) <= 100):
+                        value = lang.format_number(Decimal(element),
+                                    digits=price_digits[1], monetary=True)
+                        result.append('+'+element+'%'
+                                    if negative else '-'+element+'%')
+
+            return ', '.join(result)
         return super().on_change_with_discount(name)
 
     def apply_discount_formula(self, raise_exception=True):
@@ -127,7 +149,7 @@ class DiscountMixin(Model):
                 value = element.split('/')[0]
                 if '-' in value:
                     negative = True
-                    value = value.replace('-', '',1)
+                    value = value.replace('-', '', 1)
                 if (value and is_number(value) and element.split('/')[1] == ''):
                     value = Decimal(value)
                     if negative:
