@@ -49,6 +49,7 @@ class Sale(metaclass=PoolMeta):
             for line in sale.lines:
                 if not line.base_price:
                     continue
+
                 discount = trim_decimals(line.discount_rate * 100
                     if not line.discount_formula and line.discount_rate
                     else line.discount_amount if not line.discount_formula
@@ -59,8 +60,11 @@ class Sale(metaclass=PoolMeta):
                 formula += (discount + ("+" if discount
                         or line.discount_formula else "")
                     + sale.sale_discount_formula)
-                if formula and not line.discount_formula:
-                    line.discount_formula = formula
+                if formula:
+                    if line.discount_formula:
+                        line.discount_formula += formula
+                    else:
+                        line.discount_formula = formula
                     line.on_change_discount_formula()
                     line.save()
         super().quote(sales)
