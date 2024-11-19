@@ -76,8 +76,10 @@ class Test(unittest.TestCase):
 
         purchase.click('quote')
         purchase.click('confirm')
-
         self.assertEqual(purchase.state, 'processing')
+
+        line, = purchase.lines
+        self.assertEqual(line.discount, '10*9, -10%')
 
         self.assertEqual(len(purchase.invoices), 1)
         invoice, = purchase.invoices
@@ -85,3 +87,4 @@ class Test(unittest.TestCase):
         self.assertEqual(invoice_line.discount_formula, line.discount_formula)
         self.assertEqual(invoice_line.base_price, line.base_price)
         self.assertEqual(invoice_line.discount_rate, line.discount_rate)
+        self.assertEqual(invoice_line.discount, '10*9, -10%')

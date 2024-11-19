@@ -5,7 +5,6 @@ from trytond.pool import Pool
 from trytond.model import fields, Model
 from trytond.i18n import gettext
 from trytond.exceptions import UserError
-from trytond.transaction import Transaction
 from trytond.modules.product import price_digits, round_price
 
 
@@ -64,27 +63,62 @@ class DiscountMixin(Model):
             if unit_price != self.unit_price:
                 self.discount_formula = None
 
-    @fields.depends('discount_formula')
+    @property
+    def discount_currency(self):
+        if hasattr(self, 'currency'):
+            return self.currency
+
+    @fields.depends('discount_formula', methods=['discount_currency'])
     def on_change_with_discount(self, name=None):
         pool = Pool()
         Lang = pool.get('ir.lang')
         lang = Lang.get()
 
-        if self.discount_formula:
-            formula = re.sub(r'([+/])', r' \1', self.discount_formula)
-            discounts = formula.split() if formula else None
+        currency = self.discount_currency
 
-            if discounts:
-                result = [
-                    lang.format("%i", Decimal(discount.replace('+', ''))) + '%'
-                    if '*' not in discount and '/' not in discount else
-                    "-" + lang.currency(Decimal(discount.replace(
-                                '+', '').replace('/', '')),
-                        digits=price_digits[1], monetary=True)
-                    if '/' in discount else discount.replace('+', '')
-                    for discount in discounts
-                    ]
-                return ', '.join(result)
+        def is_number(value):
+            try:
+                float(value)
+                return True
+            except ValueError:
+                return False
+
+        if self.discount_formula:
+            formula = self.discount_formula
+            elements = formula.split('+')
+
+            result = []
+            for element in elements:
+                if element.count('/') == 1: #Case absolut value discount
+                    negative = False
+                    value = element.split('/')[0]
+                    if '-' in value:
+                        negative = True
+                        value = value.replace('-', '', 1)
+                    if (value and is_number(value) and element.split('/')[1] == ''):
+                        if currency:
+                            value = lang.currency(Decimal(value), currency,
+                                    symbol=True, digits=price_digits[1])
+                        result.append(value if negative else '-'+value)
+
+                elif element.count('*') == 1: #Case buy x pay y discount
+                    value1, value2 = element.split('*')
+                    if (value1 and value2
+                            and value1.isdigit() and value2.isdigit()
+                            and Decimal(value2) < Decimal(value1)):
+                        result.append(element)
+
+                else: #Case percent discount
+                    negative = False
+                    if '-' in element:
+                        negative = True
+                        element = element.replace('-', '', 1)
+                    if (element and is_number(element) and float(element) <= 100):
+                        # value = lang.format_number(Decimal(element),
+                        #             digits=price_digits[1], monetary=True)
+                        result.append(element+'%' if negative else '-'+element+'%')
+
+            return ', '.join(result)
         return super().on_change_with_discount(name)
 
     def apply_discount_formula(self, raise_exception=True):
@@ -113,7 +147,7 @@ class DiscountMixin(Model):
                 value = element.split('/')[0]
                 if '-' in value:
                     negative = True
-                    value = value.replace('-', '',1)
+                    value = value.replace('-', '', 1)
                 if (value and is_number(value) and element.split('/')[1] == ''):
                     value = Decimal(value)
                     if negative:
