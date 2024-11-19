@@ -99,7 +99,7 @@ class DiscountMixin(Model):
                         if currency:
                             value = lang.currency(Decimal(value), currency,
                                     symbol=True, digits=price_digits[1])
-                        result.append(value if negative else '-'+value)
+                        result.append('-'+value if negative else value)
 
                 elif element.count('*') == 1: #Case buy x pay y discount
                     value1, value2 = element.split('*')
@@ -116,7 +116,7 @@ class DiscountMixin(Model):
                     if (element and is_number(element) and float(element) <= 100):
                         # value = lang.format_number(Decimal(element),
                         #             digits=price_digits[1], monetary=True)
-                        result.append(element+'%' if negative else '-'+element+'%')
+                        result.append('-'+element+'%' if negative else element+'%')
 
             return ', '.join(result)
         return super().on_change_with_discount(name)
