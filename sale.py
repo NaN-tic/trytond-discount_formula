@@ -1,4 +1,3 @@
-import re
 from decimal import Decimal
 
 from trytond.pool import Pool, PoolMeta
@@ -6,7 +5,6 @@ from trytond.model import fields, ModelView
 from trytond.pyson import Eval
 from trytond.transaction import Transaction
 from .discount import DiscountMixin
-from trytond.modules.product import price_digits
 
 
 class Sale(metaclass=PoolMeta):
@@ -22,10 +20,13 @@ class Sale(metaclass=PoolMeta):
     @classmethod
     @ModelView.button
     def draft(cls, sales):
-        to_write = []
+        Line = Pool().get('sale.line')
+
+        to_save = []
         for sale in sales:
             if not sale.sale_discount_formula:
                 continue
+
             formula = sale.sale_discount_formula
             for line in sale.lines:
                 if (line.discount_formula and
@@ -33,22 +34,30 @@ class Sale(metaclass=PoolMeta):
                     line.discount_formula = (
                         line.discount_formula[:-len(formula)-1])
                     line.on_change_discount_formula()
-                    line.save()
+                    to_save.append(line)
+
+        if to_save:
+            Line.save(to_save)
+
         super().draft(sales)
 
     @classmethod
     @ModelView.button
     def quote(cls, sales):
+        Line = Pool().get('sale.line')
+
         def trim_decimals(value):
             # Convert to string without scientific notation
             return format(Decimal(value).normalize(), 'f') if value else value
 
+        to_save = []
         for sale in sales:
             if not sale.sale_discount_formula:
                 continue
             for line in sale.lines:
                 if not line.base_price:
                     continue
+
                 discount = trim_decimals(line.discount_rate * 100
                     if not line.discount_formula and line.discount_rate
                     else line.discount_amount if not line.discount_formula
@@ -60,9 +69,16 @@ class Sale(metaclass=PoolMeta):
                         or line.discount_formula else "")
                     + sale.sale_discount_formula)
                 if formula:
-                    line.discount_formula += formula
+                    if line.discount_formula:
+                        line.discount_formula += formula
+                    else:
+                        line.discount_formula = formula
                     line.on_change_discount_formula()
-                    line.save()
+                    to_save.append(line)
+
+        if to_save:
+            Line.save(to_save)
+
         super().quote(sales)
 
 
@@ -81,33 +97,6 @@ class SaleLine(DiscountMixin, metaclass=PoolMeta):
         if not self.discount_formula:
             self.discount_rate = 0.0
             self.on_change_discount_rate()
-
-    @fields.depends('sale', 'discount_formula')
-    def on_change_with_discount(self, name=None):
-        pool = Pool()
-        Lang = pool.get('ir.lang')
-        lang = Lang.get()
-
-        if self.discount_formula:
-            formula = re.sub(r'([+/])', r' \1', self.discount_formula)
-            discounts = formula.split() if formula else None
-
-            if discounts:
-                result = [
-                    lang.format("%s", discount.replace('+', '')) + '%'
-                    if '*' not in discount and '/' not in discount else
-                    ("-" + lang.currency(discount.replace(
-                                    '+', '').replace('/', ''),
-                            self.sale.currency, digits=price_digits[1])
-                        if self.sale and self.sale.currency else
-                        lang.format_number(discount.replace(
-                                    '+', '').replace('/', ''),
-                                digits=price_digits[1], monetary=True))
-                    if '/' in discount else discount.replace('+', '')
-                    for discount in discounts
-                    ]
-                return ', '.join(result)
-        return super().on_change_with_discount(name)
 
 
 class SaleDiscountLine(metaclass=PoolMeta):
