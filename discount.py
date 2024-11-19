@@ -115,10 +115,9 @@ class DiscountMixin(Model):
                         negative = True
                         element = element.replace('-', '', 1)
                     if (element and is_number(element) and float(element) <= 100):
-                        value = lang.format_number(Decimal(element),
-                                    digits=price_digits[1], monetary=True)
-                        result.append(element+'%'
-                                    if negative else '-'+element+'%')
+                        # value = lang.format_number(Decimal(element),
+                        #             digits=price_digits[1], monetary=True)
+                        result.append(element+'%' if negative else '-'+element+'%')
 
             return ', '.join(result)
         return super().on_change_with_discount(name)

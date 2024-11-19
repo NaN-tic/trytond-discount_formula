@@ -1,4 +1,3 @@
-import re
 from decimal import Decimal
 
 from trytond.pool import Pool, PoolMeta
@@ -6,7 +5,6 @@ from trytond.model import fields, ModelView
 from trytond.pyson import Eval
 from trytond.transaction import Transaction
 from .discount import DiscountMixin
-from trytond.modules.product import price_digits
 
 
 class Sale(metaclass=PoolMeta):
@@ -22,10 +20,13 @@ class Sale(metaclass=PoolMeta):
     @classmethod
     @ModelView.button
     def draft(cls, sales):
-        to_write = []
+        Line = Pool().get('sale.line')
+
+        to_save = []
         for sale in sales:
             if not sale.sale_discount_formula:
                 continue
+
             formula = sale.sale_discount_formula
             for line in sale.lines:
                 if (line.discount_formula and
@@ -33,16 +34,23 @@ class Sale(metaclass=PoolMeta):
                     line.discount_formula = (
                         line.discount_formula[:-len(formula)-1])
                     line.on_change_discount_formula()
-                    line.save()
+                    to_save.append(line)
+
+        if to_save:
+            Line.save(to_save)
+
         super().draft(sales)
 
     @classmethod
     @ModelView.button
     def quote(cls, sales):
+        Line = Pool().get('sale.line')
+
         def trim_decimals(value):
             # Convert to string without scientific notation
             return format(Decimal(value).normalize(), 'f') if value else value
 
+        to_save = []
         for sale in sales:
             if not sale.sale_discount_formula:
                 continue
@@ -66,7 +74,11 @@ class Sale(metaclass=PoolMeta):
                     else:
                         line.discount_formula = formula
                     line.on_change_discount_formula()
-                    line.save()
+                    to_save.append(line)
+
+        if to_save:
+            Line.save(to_save)
+
         super().quote(sales)
 
 
