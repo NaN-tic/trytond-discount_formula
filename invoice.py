@@ -1,10 +1,6 @@
-import re
-
-from trytond.pool import Pool, PoolMeta
-from trytond.model import fields
+from trytond.pool import PoolMeta
 from trytond.pyson import Eval
 from .discount import DiscountMixin
-from trytond.modules.product import price_digits
 
 
 class InvoiceLine(DiscountMixin, metaclass=PoolMeta):

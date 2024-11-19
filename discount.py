@@ -5,7 +5,6 @@ from trytond.pool import Pool
 from trytond.model import fields, Model
 from trytond.i18n import gettext
 from trytond.exceptions import UserError
-from trytond.transaction import Transaction
 from trytond.modules.product import price_digits, round_price
 
 

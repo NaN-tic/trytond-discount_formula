@@ -1,9 +1,6 @@
-import re
-
-from trytond.pool import Pool, PoolMeta
+from trytond.pool import  PoolMeta
 from trytond.model import fields
 from .discount import DiscountMixin
-from trytond.modules.product import price_digits
 
 
 class PurchaseLine(DiscountMixin, metaclass=PoolMeta):
