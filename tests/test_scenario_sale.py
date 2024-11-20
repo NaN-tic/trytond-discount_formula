@@ -79,7 +79,7 @@ class Test(unittest.TestCase):
         self.assertEqual(sale.state, 'processing')
 
         line, = sale.lines
-        self.assertEqual(line.discount, '10*9, -10%')
+        self.assertEqual(line.discount, '10*9, 10%')
 
         self.assertEqual(len(sale.invoices), 1)
         invoice, = sale.invoices
@@ -87,7 +87,7 @@ class Test(unittest.TestCase):
         self.assertEqual(invoice_line.discount_formula, line.discount_formula)
         self.assertEqual(invoice_line.base_price, line.base_price)
         self.assertEqual(invoice_line.discount_rate, line.discount_rate)
-        self.assertEqual(invoice_line.discount, '10*9, -10%')
+        self.assertEqual(invoice_line.discount, '10*9, 10%')
 
         sale = Sale()
         sale.party = party
@@ -104,7 +104,7 @@ class Test(unittest.TestCase):
         line.quantity = 1
         line.base_price = Decimal('10.0000')
         line.discount_formula = '2/'
-        self.assertEqual(line.discount, '-$2.0000')
+        self.assertEqual(line.discount, '$2.0000')
         self.assertEqual(line.unit_price, Decimal('8.0000'))
         sale.save()
 
@@ -119,9 +119,9 @@ class Test(unittest.TestCase):
 
         line1, line2 = sale.lines
         self.assertEqual(line1.discount_formula, '10')
-        self.assertEqual(line1.discount, '-10%')
+        self.assertEqual(line1.discount, '10%')
         self.assertEqual(line2.discount_formula, '2/+10')
-        self.assertEqual(line2.discount, '-$2.0000, -10%')
+        self.assertEqual(line2.discount, '$2.0000, 10%')
 
         sale.click('draft')
 
@@ -131,4 +131,4 @@ class Test(unittest.TestCase):
         self.assertEqual(line1.discount_formula, '')
         self.assertEqual(line1.discount, None)
         self.assertEqual(line2.discount_formula, '2/')
-        self.assertEqual(line2.discount, '-$2.0000')
+        self.assertEqual(line2.discount, '$2.0000')
