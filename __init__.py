@@ -23,12 +23,9 @@ def register():
         depends=['purchase_discount', 'account_invoice_discount'])
     Pool.register(
         product_supplier.ProductSupplierPrice,
-        module='discount_formula', type_='model',
-        depends=['purchase_supplier_discount'])
-    Pool.register(
         purchase.PurchaseLineSupplierDepends,
         module='discount_formula', type_='model',
-        depends=['purchase_discount', 'purchase_supplier_discount'])
+        depends=['purchase_supplier_discount'])
     Pool.register(
         sale.SaleLine,
         sale.Sale,
