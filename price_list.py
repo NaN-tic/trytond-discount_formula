@@ -45,6 +45,7 @@ class PriceListLine(metaclass=PoolMeta):
             ]
         return attributes
 
+    @fields.depends('discount_formula', 'formula')
     def update_formula(self):
         super().update_formula()
         if (self.base_price_formula and not self.discount_formula
