@@ -29,9 +29,7 @@ class DiscountMixin(Model):
         except AttributeError:
             pass
         if self.discount_formula and self.base_price:
-            unit_price = self.apply_discount_formula(raise_exception=False)
-            if unit_price != self.unit_price:
-                self.discount_formula = None
+            self.unit_price = self.apply_discount_formula(raise_exception=False)
 
     @fields.depends('base_price', 'discount_formula', 'unit_price',
         methods=['apply_discount_formula'])
