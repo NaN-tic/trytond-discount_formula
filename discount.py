@@ -28,7 +28,7 @@ class DiscountMixin(Model):
             super().on_change_base_price()
         except AttributeError:
             pass
-        if self.discount_formula and self.base_price:
+        if self.discount_formula and self.base_price is not None:
             self.unit_price = self.apply_discount_formula(raise_exception=False)
 
     @fields.depends('base_price', 'discount_formula', 'unit_price',
@@ -38,7 +38,7 @@ class DiscountMixin(Model):
             super().on_change_unit_price()
         except AttributeError:
             pass
-        if self.discount_formula and self.base_price:
+        if self.discount_formula and self.base_price is not None:
             unit_price = self.apply_discount_formula(raise_exception=False)
             if unit_price != self.unit_price:
                 self.discount_formula = None
@@ -47,7 +47,7 @@ class DiscountMixin(Model):
         methods=['apply_discount_formula'])
     def on_change_discount_rate(self):
         super().on_change_discount_rate()
-        if self.discount_formula and self.base_price:
+        if self.discount_formula and self.base_price is not None:
             unit_price = self.apply_discount_formula(raise_exception=False)
             if unit_price != self.unit_price:
                 self.discount_formula = None
@@ -56,7 +56,7 @@ class DiscountMixin(Model):
         methods=['apply_discount_formula'])
     def on_change_discount_amount(self):
         super().on_change_discount_amount()
-        if self.discount_formula and self.base_price:
+        if self.discount_formula and self.base_price is not None:
             unit_price = self.apply_discount_formula(raise_exception=False)
             if unit_price != self.unit_price:
                 self.discount_formula = None
