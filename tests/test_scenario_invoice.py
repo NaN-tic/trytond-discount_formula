@@ -67,7 +67,7 @@ class Test(unittest.TestCase):
         line.base_price = Decimal('10.0000')
         line.discount_formula = '10*9+10+0.35/'
         self.assertEqual(line.unit_price, Decimal('7.7500'))
-        self.assertEqual(line.discount, '10*9, 10%, 0.35')
+        self.assertEqual(line.discount, '10*9, 10%, $0.3500')
         line.discount_formula = '10*9+10'
         self.assertEqual(line.unit_price, Decimal('8.1000'))
         self.assertEqual(line.discount, '10*9, 10%')
