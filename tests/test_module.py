@@ -26,7 +26,6 @@ class DiscountFormulaTestCase(ModuleTestCase):
         'Test discount formula'
 
         pool = Pool()
-        Sale = pool.get('sale.sale')
 
         currency = create_currency('USD')
 
