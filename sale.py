@@ -112,7 +112,7 @@ class SaleDiscountLine(metaclass=PoolMeta):
 class SaleDiscountPriceListLine(metaclass=PoolMeta):
     __name__ = 'sale.line'
 
-    @fields.depends('product', 'quantity', 'unit', 'sale',
+    @fields.depends('product', 'quantity', 'unit', 'sale', 'unit_price',
         '_parent_sale.price_list')
     def update_discount(self):
         pool = Pool()
@@ -131,5 +131,7 @@ class SaleDiscountPriceListLine(metaclass=PoolMeta):
             discount_formula = price_list.compute_discount_formula(self.product,
                 self.quantity, self.unit)
             if discount_formula:
-                self.discount_formula = discount_formula
+                # in case price list return unit_price 0, set discount formula 100%
+                self.discount_formula = (discount_formula
+                    if self.unit_price != 0 else '100')
                 self.on_change_discount_formula()

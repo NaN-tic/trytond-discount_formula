@@ -83,7 +83,7 @@ class Test(unittest.TestCase):
         payment_term = create_payment_term()
         payment_term.save()
 
-        # Create two price list one and assign on to each customer
+        # Create four price lists
         PriceList = Model.get('product.price_list')
         default_price_list = PriceList(name='Default', price='list_price')
         price_list_line = default_price_list.lines.new()
@@ -101,6 +101,12 @@ class Test(unittest.TestCase):
         price_list_line.formula = 'unit_price'
         price_list_line.discount_formula = '40+10'
         default_discount_price_list.save()
+
+        discount_price_list_zero = PriceList(name='0', price='list_price')
+        price_list_line = discount_price_list_zero.lines.new()
+        price_list_line.formula = '0'
+        price_list_line.discount_formula = '10'
+        discount_price_list_zero.save()
 
         # Sale products to customer
         Sale = Model.get('sale.sale')
@@ -152,3 +158,19 @@ class Test(unittest.TestCase):
         self.assertEqual(sale.state, 'draft')
         self.assertEqual(sale.untaxed_amount, Decimal('10.8000'))
         self.assertEqual(sale.total_amount, Decimal('11.8800'))
+
+        sale = Sale()
+        sale.party = customer
+        sale.payment_term = payment_term
+        sale.price_list = discount_price_list_zero
+        sale_line = sale.lines.new()
+        sale_line.product = product
+        sale_line.quantity = 2.0
+        self.assertEqual(sale_line.unit_price, Decimal('0.0000'))
+        self.assertEqual(sale_line.base_price, Decimal('10.0000'))
+        self.assertEqual(sale_line.discount_rate, Decimal('1.0000'))
+        self.assertEqual(sale_line.discount_formula, '100')
+        sale.save()
+        self.assertEqual(sale.state, 'draft')
+        self.assertEqual(sale.untaxed_amount, Decimal('0.00'))
+        self.assertEqual(sale.total_amount, Decimal('0.00'))
