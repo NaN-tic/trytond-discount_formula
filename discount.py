@@ -20,6 +20,7 @@ class DiscountMixin(Model):
             self.unit_price = self.apply_discount_formula(raise_exception=False)
             self.discount_rate = self.on_change_with_discount_rate()
             self.discount_amount = self.on_change_with_discount_amount()
+            self.discount = self.on_change_with_discount()
 
     @fields.depends('base_price', 'discount_formula', 'unit_price',
         methods=['apply_discount_formula'])
