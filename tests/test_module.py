@@ -59,6 +59,7 @@ class DiscountFormulaTestCase(ModuleTestCase):
             self.assertEqual(line.discount_amount, Decimal('1.9500'))
             self.assertEqual(line.discount_rate, Decimal('0.3000'))
             self.assertEqual(line.on_change_with_discount(), '30%')
+            self.assertEqual(line.discount, '30%')
 
             line.discount_formula = '30+5'
             line.on_change_discount_formula()
@@ -66,6 +67,7 @@ class DiscountFormulaTestCase(ModuleTestCase):
             self.assertEqual(line.discount_amount, Decimal('2.1775'))
             self.assertEqual(line.discount_rate, Decimal('0.3350'))
             self.assertEqual(line.on_change_with_discount(), '30%, 5%')
+            self.assertEqual(line.discount, '30%, 5%')
 
             # #Case absolut value discount
             line.discount_formula = '0.35/'
