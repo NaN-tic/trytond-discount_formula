@@ -1,9 +1,9 @@
 from trytond.pool import PoolMeta
 from trytond.pyson import Eval
-from .discount import DiscountMixin
+from .discount import DiscountMixin, ApplyDiscountMixin
 
 
-class InvoiceLine(DiscountMixin, metaclass=PoolMeta):
+class InvoiceLine(DiscountMixin, ApplyDiscountMixin, metaclass=PoolMeta):
     __name__ = 'account.invoice.line'
 
     @classmethod

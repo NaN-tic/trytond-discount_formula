@@ -1,9 +1,9 @@
 from trytond.pool import  PoolMeta
 from trytond.model import fields
-from .discount import DiscountMixin
+from .discount import DiscountMixin, ApplyDiscountMixin
 
 
-class PurchaseLine(DiscountMixin, metaclass=PoolMeta):
+class PurchaseLine(DiscountMixin, ApplyDiscountMixin, metaclass=PoolMeta):
     __name__ = 'purchase.line'
 
     @fields.depends('amount',methods=['on_change_with_amount'])
@@ -22,7 +22,7 @@ class PurchaseDiscountLine(metaclass=PoolMeta):
         return lines
 
 
-class PurchaseLineSupplierDepends(DiscountMixin, metaclass=PoolMeta):
+class PurchaseLineSupplierDepends(DiscountMixin, ApplyDiscountMixin, metaclass=PoolMeta):
     __name__ = 'purchase.line'
 
     @fields.depends('base_price', 'product', 'discount_formula', 'unit_price',

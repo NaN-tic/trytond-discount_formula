@@ -4,7 +4,7 @@ from trytond.pool import Pool, PoolMeta
 from trytond.model import fields, ModelView
 from trytond.pyson import Eval
 from trytond.transaction import Transaction
-from .discount import DiscountMixin
+from .discount import DiscountMixin, ApplyDiscountMixin
 
 
 class Sale(metaclass=PoolMeta):
@@ -82,7 +82,7 @@ class Sale(metaclass=PoolMeta):
         super().quote(sales)
 
 
-class SaleLine(DiscountMixin, metaclass=PoolMeta):
+class SaleLine(DiscountMixin, ApplyDiscountMixin, metaclass=PoolMeta):
     __name__ = 'sale.line'
 
     @classmethod

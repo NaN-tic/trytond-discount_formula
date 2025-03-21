@@ -1,15 +1,29 @@
 from trytond.pool import PoolMeta
 from trytond.model import fields
 from trytond.pyson import Bool, Eval
+from trytond.modules.product import round_price
+from .discount import ApplyDiscountMixin
 
 
-class PriceList(metaclass=PoolMeta):
+class PriceList(ApplyDiscountMixin, metaclass=PoolMeta):
     __name__ = 'product.price_list'
 
     def compute_discount_formula(self, product, quantity, uom, pattern=None):
         line = self.get_price_line(product, quantity, uom, pattern=pattern)
         if line:
             return line.discount_formula
+
+    def compute(self, product, quantity, uom, pattern=None):
+        unit_price = super().compute(product, quantity, uom, pattern)
+
+        line = self.get_price_line(product, quantity, product.default_uom,
+            pattern=pattern)
+        if line and line.discount_formula is not None:
+            unit_price = self.apply_discount_formula(unit_price,
+                line.discount_formula, raise_exception=False)
+            if unit_price is not None:
+                unit_price = round_price(unit_price)
+        return unit_price
 
 
 class PriceListLine(metaclass=PoolMeta):
