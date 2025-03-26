@@ -5,6 +5,8 @@ from decimal import Decimal
 from trytond.tests.test_tryton import ModuleTestCase, with_transaction
 from trytond.tests.test_tryton import activate_module
 from trytond.modules.currency.tests import create_currency
+from trytond.modules.company.tests import create_company, set_company
+from trytond.transaction import Transaction
 from trytond.pool import Pool
 
 
@@ -20,6 +22,86 @@ class DiscountFormulaTestCase(ModuleTestCase):
         activate_module('purchase_discount')
         activate_module('purchase_supplier_discount')
         activate_module('sale_discount')
+
+    @with_transaction()
+    def test_product_price_list(self):
+        'Test price_list'
+        pool = Pool()
+        Template = pool.get('product.template')
+        Product = pool.get('product.product')
+        Uom = pool.get('product.uom')
+        PriceList = pool.get('product.price_list')
+        Category = pool.get('product.category')
+
+        company = create_company()
+        with set_company(company):
+            kilogram, = Uom.search([
+                    ('name', '=', 'Kilogram'),
+                    ])
+
+            account_category = Category(
+                name='Account Category',
+                accounting=True,
+                )
+            account_category.save()
+
+            template = Template(
+                name='product',
+                list_price=Decimal(10),
+                default_uom=kilogram,
+                account_category=account_category,
+                salable=True,
+                sale_uom=kilogram,
+                )
+            template.save()
+            variant1 = Product(template=template)
+            variant1.save()
+            variant2 = Product(template=template)
+            variant2.save()
+            variant3 = Product(template=template)
+            variant3.save()
+            variant4 = Product(template=template)
+            variant4.save()
+
+            price_list, = PriceList.create([{
+                        'name': 'Default Price List',
+                        'price': 'list_price',
+                        'lines': [('create', [{
+                                        'quantity': None,
+                                        'product': variant1.id,
+                                        'formula': 'unit_price',
+                                        }, {
+                                        'quantity': None,
+                                        'product': variant2.id,
+                                        'formula': 'unit_price',
+                                        'base_price_formula': 'unit_price + 1',
+                                        }, {
+                                        'quantity': None,
+                                        'product': variant3.id,
+                                        'formula': '0',
+                                        'base_price_formula': 'unit_price',
+                                        'discount_formula': '50',
+                                        }, {
+                                        'quantity': None,
+                                        'product': variant4.id,
+                                        'formula': '0',
+                                        'base_price_formula': 'unit_price',
+                                        'discount_formula': '30+5',
+                                        }, {
+                                        'formula': 'unit_price',
+                                        }])],
+                        }])
+
+            tests = [
+                (variant1, Decimal('10.0000')),
+                (variant2, Decimal('10.0000')),
+                (variant3, Decimal('5.0000')),
+                (variant4, Decimal('6.6500')),
+                ]
+            with Transaction().set_context(price_list=price_list.id):
+                for product, unit_price in tests:
+                    product = Product(product.id)
+                    self.assertEqual(product.sale_price_uom, unit_price)
 
     @with_transaction()
     def test_discount_formula(self):

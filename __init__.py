@@ -7,6 +7,10 @@ from . import purchase
 from . import product_supplier
 from . import sale
 from . import price_list
+from .discount import apply_discount_formula
+
+__all__ = [apply_discount_formula]
+
 
 def register():
     Pool.register(
