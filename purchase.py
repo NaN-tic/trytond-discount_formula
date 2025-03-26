@@ -1,6 +1,7 @@
 from trytond.pool import  PoolMeta
 from trytond.model import fields
 from .discount import DiscountMixin
+from trytond.modules.discount_formula.discount import apply_discount_formula
 
 
 class PurchaseLine(DiscountMixin, metaclass=PoolMeta):

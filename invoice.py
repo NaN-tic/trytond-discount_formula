@@ -1,6 +1,7 @@
 from trytond.pool import PoolMeta
 from trytond.pyson import Eval
 from .discount import DiscountMixin
+from trytond.modules.discount_formula.discount import apply_discount_formula
 
 
 class InvoiceLine(DiscountMixin, metaclass=PoolMeta):
