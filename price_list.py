@@ -19,10 +19,13 @@ class PriceList(metaclass=PoolMeta):
         line = self.get_price_line(product, quantity, product.default_uom,
             pattern=pattern)
         if line and line.discount_formula is not None:
-            unit_price = apply_discount_formula(unit_price,
-                line.discount_formula, raise_exception=False)
-            if unit_price is not None:
-                unit_price = round_price(unit_price)
+            base_price = self.compute_base_price(
+                        product, quantity, product.default_uom, pattern=pattern)
+            if base_price is not None:
+                 base_price = apply_discount_formula(base_price,
+                        line.discount_formula, raise_exception=False)
+            if base_price is not None:
+                unit_price = round_price(base_price)
         return unit_price
 
 
@@ -62,14 +65,16 @@ class PriceListLine(metaclass=PoolMeta):
     @fields.depends('discount_formula', 'formula')
     def update_formula(self):
         super().update_formula()
-        if (self.base_price_formula and not self.discount_formula
-                and not self.discount_rate
+        if (self.base_price_formula is not None
+                and not self.discount_formula is None
+                and not self.discount_rate is None
                 and self.formula == '0'):
             self.formula = self.base_price_formula
-        elif self.base_price_formula and self.discount_formula:
+        elif (self.base_price_formula is not None
+                and self.discount_formula is not None):
             self.formula = '0'
 
-    @fields.depends('discount_formula', 'discount_rate', 'formula')
+    @fields.depends(methods=['update_formula'])
     def on_change_discount_formula(self):
         self.discount_rate = None
         self.update_formula()

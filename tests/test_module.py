@@ -74,15 +74,19 @@ class DiscountFormulaTestCase(ModuleTestCase):
                                         'quantity': None,
                                         'product': variant2.id,
                                         'formula': 'unit_price',
-                                        'discount_formula': '30',
+                                        'base_price_formula': 'unit_price + 1',
                                         }, {
                                         'quantity': None,
                                         'product': variant3.id,
-                                        'discount_formula': '30+5',
+                                        'formula': '0',
+                                        'base_price_formula': 'unit_price',
+                                        'discount_formula': '50',
                                         }, {
                                         'quantity': None,
                                         'product': variant4.id,
-                                        'discount_formula': '3*2',
+                                        'formula': '0',
+                                        'base_price_formula': 'unit_price',
+                                        'discount_formula': '30+5',
                                         }, {
                                         'formula': 'unit_price',
                                         }])],
@@ -90,9 +94,9 @@ class DiscountFormulaTestCase(ModuleTestCase):
 
             tests = [
                 (variant1, Decimal('10.0000')),
-                (variant2, Decimal('7.0000')),
-                (variant3, Decimal('6.6500')),
-                (variant4, Decimal('6.6667')),
+                (variant2, Decimal('10.0000')),
+                (variant3, Decimal('5.0000')),
+                (variant4, Decimal('6.6500')),
                 ]
             with Transaction().set_context(price_list=price_list.id):
                 for product, unit_price in tests:
