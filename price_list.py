@@ -16,11 +16,11 @@ class PriceList(metaclass=PoolMeta):
     def compute(self, product, quantity, uom, pattern=None):
         unit_price = super().compute(product, quantity, uom, pattern)
 
-        line = self.get_price_line(product, quantity, product.default_uom,
+        line = self.get_price_line(product, quantity, uom,
             pattern=pattern)
         if line and line.discount_formula is not None:
             base_price = self.compute_base_price(
-                        product, quantity, product.default_uom, pattern=pattern)
+                        product, quantity, uom, pattern=pattern)
             if base_price is not None:
                  base_price = apply_discount_formula(base_price,
                         line.discount_formula, raise_exception=False)
