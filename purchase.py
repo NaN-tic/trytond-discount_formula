@@ -1,11 +1,17 @@
 from trytond.pool import  PoolMeta
 from trytond.model import fields
 from .discount import DiscountMixin
-from trytond.modules.discount_formula.discount import apply_discount_formula
+from trytond.pyson import Eval
 
 
 class PurchaseLine(DiscountMixin, metaclass=PoolMeta):
     __name__ = 'purchase.line'
+
+    @classmethod
+    def __setup__(cls):
+        super().__setup__()
+        cls.discount_formula.states['invisible'] = Eval('type') != 'line'
+        cls.discount_formula.states['readonly'] = Eval('purchase_state') != 'draft'
 
     @fields.depends('amount',methods=['on_change_with_amount'])
     def on_change_discount_formula(self):
