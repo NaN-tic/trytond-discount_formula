@@ -5,7 +5,6 @@ from trytond.model import fields, ModelView
 from trytond.pyson import Eval
 from trytond.transaction import Transaction
 from .discount import DiscountMixin
-from trytond.modules.discount_formula.discount import apply_discount_formula
 
 
 class Sale(metaclass=PoolMeta):
