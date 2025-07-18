@@ -130,7 +130,7 @@ class SaleDiscountPriceListLine(metaclass=PoolMeta):
             price_list = PriceList(context.get('price_list'))
         if price_list and self.unit:
             discount_formula = price_list.compute_discount_formula(self.product,
-                self.quantity, self.unit)
+                self.quantity or 0, self.unit)
             if discount_formula:
                 self.discount_formula = discount_formula
                 self.on_change_discount_formula()
