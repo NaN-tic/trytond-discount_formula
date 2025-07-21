@@ -10,7 +10,7 @@ from .discount import DiscountMixin
 class Sale(metaclass=PoolMeta):
     __name__ = 'sale.sale'
 
-    sale_discount_formula = fields.Char('Sale Discount Formula',
+    sale_discount_formula = fields.Char('Discount Formula',
         states={
             'readonly': Eval('state') != 'draft',
             }, depends=['state'],
