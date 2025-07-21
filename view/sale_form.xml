@@ -3,8 +3,9 @@
 The COPYRIGHT file at the top level of this repository contains the full
 copyright notices and license terms. -->
 <data>
-    <xpath expr="/form/notebook/page[@id='sale']/group[@id='amount']/field[@name='untaxed_amount']" position="after">
-        <label name="sale_discount_formula" xalign="1.0" xexpand="1"/>
+    <xpath expr="/form/notebook/page[@id='sale']/group[@id='amount']/label[@name='untaxed_amount']" position="before">
+        <label name="sale_discount_formula" xalign="1.0" xexpand="1" xfill="0"/>
         <field name="sale_discount_formula" xalign="1.0" xexpand="0"/>
+        <newline/>
     </xpath>
 </data>
