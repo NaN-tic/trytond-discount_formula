@@ -23,8 +23,8 @@ msgid "Discount Formula"
 msgstr "Fórmula descuento"
 
 msgctxt "field:sale.sale,sale_discount_formula:"
-msgid "Sale Discount Formula"
-msgstr "Fórmula descuento venta"
+msgid "Discount Formula"
+msgstr "Fórmula descuento"
 
 msgctxt "model:ir.message,text:msg_invalid_amount_discount"
 msgid ""
