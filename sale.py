@@ -15,7 +15,8 @@ class Sale(metaclass=PoolMeta):
             'readonly': Eval('state') != 'draft',
             }, depends=['state'],
         help='This discount will be applied in all lines after their own '
-        'discount.')
+        'discount. It can only contain numeric values, and the symbols '
+        '"+" "*" "/" "."')
 
     @classmethod
     @ModelView.button
