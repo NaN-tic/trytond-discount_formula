@@ -20,10 +20,10 @@ class PriceList(metaclass=PoolMeta):
             pattern=pattern)
         if line and line.discount_formula is not None:
             base_price = self.compute_base_price(
-                        product, quantity, uom, pattern=pattern)
+                product, quantity, uom, pattern=pattern)
             if base_price is not None:
-                 base_price = apply_discount_formula(base_price,
-                        line.discount_formula, raise_exception=False)
+                base_price = apply_discount_formula(base_price,
+                    line.discount_formula, raise_exception=False)
             if base_price is not None:
                 unit_price = round_price(base_price)
         return unit_price
